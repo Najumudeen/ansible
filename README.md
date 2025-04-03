@@ -1,38 +1,42 @@
-# ansible
+## ANSIBLE INTRODUCTION
 
-ANSIBLE
+1. `YAML`
+2. `INVENTROY`
+3. `Playbooks`
+4. `Variables`
+5. `Modules`
+6. `Loop`
 
+### How ansible playbook run with `DRY` option
 
-YAML
-INVENTROY
-Playbooks
-Variables
-Modules
-Loop
-
-
-
-
-Start with DRY run option
-
+```
 ansible-playbook playbook.yml —check
+```
 
+```
+ansible-playbook playbook.yml —start-at-task “start httpd service”
+```
 
-Ansible-playbook playbook.yml —start-at-task “start httpd service”
+### Tag
 
-Tag
+### Tasks
 
-Tasks:
-- Yum:
--   Name: httpd
--   State: installed
-- Tags: install
+```
+yum:
+  name: httpd
+  state: installed
+  tags: install
+```
 
-ansible-playbook playbook.yml —tags “install”
+```
+ansible-playbook playbook.yml —tags install
+```
 
-ansible-playbook playbook.yml —skip—tags “install”
+```
+ansible-playbook playbook.yml —skip—tags install
+```
 
-
+```
 ---
 - name: Create a myfile.txt
   hosts: web1
@@ -42,43 +46,47 @@ ansible-playbook playbook.yml —skip—tags “install”
       file:
         path: /root/myfile.txt
         state: touch
+```
 
-User Creation using Ansible
+### User Creation using Ansible
 
+```
 ---
 - hosts: web1
   tasks:
     - name: Create user angel
       user:
         name: angel
+```
 
-Ansible Facts
+### Ansible Facts
 
-     Collect the information
-     Collect the information about hostname, disk, volumes and space in the disk
-     Using Setup Module Anisble collect the facts from target hosts
-—-
-- Name: print hello message
-- Hosts: all
-- Tasks:
-- - debug:
--       Msg: hello from Ansible
+- Collect the information
+- Collect the information about hostname, disk, volumes and space in the disk
+- Using Setup Module Anisble collect the facts from target hosts
 
-All facts collected by Ansible stored in ansible_facts variables
+```
+name: print hello message
+  hosts: all
+  tasks:
+  - debug:
+      msg: hello from Ansible
+```
+> [!TIP]
+> All facts collected by Ansible stored in ansible_facts variables
 
-Disable gather facts
+### Disable gather facts
 
+```
+name: print hello message
+  hosts: all
+  gather_facts: no
+  tasks:
+  - debug:
+      msg: hello from Ansible
+```
 
-
-- Name: print hello message
-- Hosts: all
-- gather_facts: no
-- Tasks:
-- - debug:
--       Msg: hello from Ansible
-
-
-
+### config info
 
 /etc/ansible/ansible.cfg
 
@@ -86,12 +94,14 @@ Gathering  = implicit # gather by facts
 
 /etc/ansible/hosts is not mentioned not able to collect the facts
 
-Getthering Information
+### Getthering Information
 
+```
 ansible -m setup localhost | grep distribution_version
-
 cd playbooks/ && ansible -i inventory -m setup web1 | grep distribution
+```
 
+```
 ---
 - hosts: db1
   gather_facts: True
@@ -99,17 +109,17 @@ cd playbooks/ && ansible -i inventory -m setup web1 | grep distribution
     - name: Get server architecture
       debug:
         var: ansible_facts.architecture
+```
 
+### Ansible Configuration Files
 
-Ansible Configuration Files
-
+```
 /etc/ansible/ansible.cfg
+
 [defaults]
 
-
-
-# SSH timeout
-Timeout        = 10
+## SSH timeout
+Timeout          = 10
 Forks            = 5
 
 [inventory]
@@ -123,76 +133,88 @@ Forks            = 5
 [persistent_connection]
 
 [colors]
+```
 
-
-
+### ansible cfg file location
+```
 /etc/ansible/ansible.cfg
-
-
 /opt/ansible-web.cfg
-     /opt/web-playbooks
-    /opt/web-playbooks/ansible.cfg
-
+/opt/web-playbooks
+/opt/web-playbooks/ansible.cfg
 /opt/db-playbooks
-   /opt/db-playbooks/ansible.cfg
-
+/opt/db-playbooks/ansible.cfg
 /opt/network-playbooks
-  /opt/network-playbooks/ansible.cfg
-
+/opt/network-playbooks/ansible.cfg
+```
 
 $ANSIBLE_CONFIG=/opt/ansible-web.cfg ansible-playbook playbook.yml
 
-Using ENVIRONMENT variable to change that 
+### Using ENVIRONMENT variable to change that 
 
 /etc/ansible/ansible.cfg
-Gathering                      = implicit                    ANSIBLE_GATHERING=explicit
+
+Gathering       = implicit      ## ANSIBLE_GATHERING=explicit
 
 You can use export to set the environment variables
 
-Ansible Configuration Variables
+### Ansible Configuration Variables
 
 Applicable  for only single playbook execution
 
-Export ANSIBLE_GATHERING=explicit
-Ansible-playbook playbook.yml
+```
+export ANSIBLE_GATHERING=explicit
+ansible-playbook playbook.yml
+```
+### View Configuration
 
+```
+ansible-config list     # lists all configuration
 
+ansible-config view.    # show the current config file
 
-View Configuration
+ansible-config dump.    # show the current setting
 
-Ansible-config list            # lists all configuration
+export ANSIBLE_GATHERING=explicit
 
-Ansible-config view.  # show the current config file
+ansible-config dump | grep GATHERING
 
-Ansible-config dump.   # show the current setting
-
-Export ANSIBLE_GATHERING=explicit
-Ansible-config dump | grep GATHERING
 DEFAULT_GATHERING(env: ANSIBLE_GATHERING)= explicit
+```
 
 
 vi /home/thor/playbooks/ansible.cfg
+
 remote_port = 2222
 
-Control Node
+### Control Node
 
-You can install ansible on windows machines.
+> [!NOTE]
+> You can install ansible on windows machines.
 
-Ansible can manage windows node but you can not install ansible on windows.
+ansible can manage windows node but you can not install ansible on windows.
 
-Sudo pip install ansible
+```
+sudo pip install ansible
+```
 
-Default inventory file /etc/ansible/hosts
+### Default inventory file 
+```
+/etc/ansible/hosts
+```
 
-Default ansible config file /etc/ansbile/ansible.cfg
+### Default ansible config file 
+```
+/etc/ansbile/ansible.cfg
+```
 
-Update /home/thor/playbooks/ansible.cfg configuration file with new log path as given below:
-
+### Update /home/thor/playbooks/ansible.cfg configuration file with new log path as given below:
+```
 cat <<EOF  > /home/thor/playbooks/ansible.cfg
 log_path = /var/log/ansible/ansible.log
 EOF
+```
 
-Static Inventory hosts files
+### Static Inventory hosts files
 
 Creating and distributing ssh Keys
 
@@ -203,71 +225,79 @@ Not using right way
 Web1 ansible_host=172.20.1.100 ansible_ssh_pass=Passw0rd
 Web2 ansible_host=172.20.1.101 ansible_ssh_pass=Passw0rd
 
-Ssh-keygen
-id_rsa id_rsa.pub
+```
+$ ssh-keygen
+  id_rsa id_rsa.pub
 
-Cat ~/.ssh/authorized_keys
+$ cat ~/.ssh/authorized_keys
+```
+key is associated with particular user.
 
-Key is associated with particular user.
-
-Password based authentication
+### Password based authentication
 
 Create ssh key in the controller vm and copy to target vas
 
-Ssh-copy-id -I id_rsa user1@server1
+```
+ssh-copy-id -I id_rsa user1@server1
+```
 
-Web1 ansible_host=172.20.1.100
-Web2 ansible_host=172.20.1.101 
+web1 ansible_host=172.20.1.100
+web2 ansible_host=172.20.1.101 
 
 If user .ssh key is not in default location then do the below 
 
-Web1 ansible_host=172.20.1.100 ansible_user=user1 ansible_ssh_private_key_file=/some-path/privatekey
-Web2 ansible_host=172.20.1.101 ansible_user=user1 ansible_ssh_private_key_file=/some-path/privatekey
+web1 ansible_host=172.20.1.100 ansible_user=user1 ansible_ssh_private_key_file=/some-path/privatekey
+web2 ansible_host=172.20.1.101 ansible_user=user1 ansible_ssh_private_key_file=/some-path/privatekey
 
-
+```
 ssh-keygen -t rsa -f ~/.ssh/ansible
+```
 
-We would like to establish password-less secure authentication between Ansible controller and web1 node. Use the keys generated in the previous step and do the needful.
+We would like to establish password-less secure authentication between ansible controller and web1 node. Use the keys generated in the previous step and do the needful.
 
 Username is ansible and generate public name also ansible
 
+```
 ssh-copy-id -i /home/thor/.ssh/ansible ansible@web1
+```
 
+Use the ping module to test connectivity through Ansible - `ansible -m ping -i inventory web1`
 
-Use the ping module to test connectivity through Ansible - ansible -m ping -i inventory web1
+### ADHOC command
 
-ADHOC command
-
-Ansible -m ping all
-
-Ansible -a ‘cat /etc/hosts’ all
+```
+ansible -m ping all
+ansible -a ‘cat /etc/hosts’ all
+```
 
 Run the ansible command to gather facts of the localhost and save the output in /tmp/ansible_facts.txt file.
 
-
 Run an adhoc command to perform a ping connectivity to all hosts in the /home/thor/playbooks/inventory file and save the output in /tmp/ansible_all.txt file.
 
-ANSIBLE_HOST_KEY_CHECKING=False ansible -m ping -i /home/thor/playbooks/inventory all > /tmp/ansible_all.txt
+`ANSIBLE_HOST_KEY_CHECKING=False ansible -m ping -i /home/thor/playbooks/inventory all > /tmp/ansible_all.txt`
 
-Use the command module and argument date
+### Use the command module and argument date
 
+```
 ansible -m command -a date -i inventory web1 > /tmp/ansible_date.txt
 
 ansible all -a "hostname" -i inventory
 ansible node00 -m copy -a "src=/etc/resolv.conf dest=/tmp/resolv.conf" -i inventory
-
-
-
+```
+```
 ---
 - hosts: all
   tasks:
     - shell: cat /etc/redhat-release
 
 export ANSIBLE_GATHERING=explicit
-ansible all -m shell -a uptime -i inventory
-ansible-playbook -i inventory playbook.yml -vv
 
-Privilege Escalation
+ansible all -m shell -a uptime -i inventory
+
+ansible-playbook -i inventory playbook.yml -vv
+```
+
+### Privilege Escalation
 
 Users
 
@@ -277,9 +307,9 @@ Admin =>
 
 Developer
 
-Admin ssh -I id_ras admin@server1
+admin ssh -I id_ras admin@server1
 
-Sudo yum install nginx 
+sudo yum install nginx 
 
 Become Super user (sudo)
 
@@ -289,77 +319,70 @@ Becoming another user => su nginx
 
 Inventory
 
-Lamp-dev1 ansible_host=172.20.1.100 ansible_user=admin
+lamp-dev1 ansible_host=172.20.1.100 ansible_user=admin
 
 Become:yes
 become_user: nginx
 
 
-FAQ
+### FAQ
 
-—-  it indicate the beginning go the yaml file
-
-Msg: “{{ required }}” // use double curly bases , variable define inside
-Var : dns_server_ip    // not use double curly bases with var used
-When: ansible_host != ‘web’        //  Not use curly braces when used 
+`---` it indicate the beginning go the yaml file
+```
+msg: “{{ required }}”              // use double curly bases , variable define inside
+var : dns_server_ip                // not use double curly bases with var used
+when: ansible_host != ‘web’        //  Not use curly braces when used 
 with_items: {{ required  }}        // Use curly braces with_items used
-
+```
 
 ansible_ssh_pass and ansible_password used both
 
+### Ansible Modules
 
+### Packages
 
-Ansible Modules
+1. `yum`
+2. `apt`
+3. `package:
+      name: httpd
+      state: installed`
+4. `service
+     name: httpd`
 
-Packages
+### Firewall Rules
 
-   1. Yum
+5. Firewalld
+     Permanent: yes
+     Immediate: yes
 
-   2. Apt
-
-   3. package:
-      Name: httpd
-      State: installed
-
-  4. Service
-        Name: httpd
-
-Firewall Rules
-
-  5. Firewalld
+6. Storage  
+    lvg 
+    lvol
   
- Permanent: yes
- Immediate: yes
-
-6. Storage
-
-     1. lvg 
-     2. lvol
-
-
-6. Filesystem
-
+7. Filesystem
+   
   1. fstype: ext4
-    dev: /dev/vg1/lvol1
-Opts: -cc
+
+  dev: /dev/vg1/lvol1
+  Opts: -cc
 
   2. Mount
 
-  7. File
+8. `File`
 
-8. Archive
+9. `Archive
 
-      Format: zip| tar|bz2| xz | gz
+Format: zip| tar|bz2| xz | gz`
  
-9. Unarchive
+10. `Unarchive
 
-        remote_src: yes
+remote_src: yes`
 
-  10. Corn
+11. `Corn`
 
-11. Users and groups
+12. `Users and groups`
 
-
+```
 ---
 - hosts: all
   gather_facts: no
@@ -374,12 +397,13 @@ Opts: -cc
       service:
         name: httpd
         state: restarted
+```
 
-
-Update find.yml playbook as per below given code
+Update `find.yml` playbook as per below given code
 
 We have a playbook ~/playbooks/find.yml that recursively finds files in /opt/data directory older than 2 minutes and equal or greater than 1 megabyte in size. It also copies those files under /opt directory. However it has some missing parameters so its not working as expected, take a look into it and make appropriate changes.
 
+```
 ---
 - hosts: web1
   tasks:
@@ -394,11 +418,11 @@ We have a playbook ~/playbooks/find.yml that recursively finds files in /opt/
     - name: Copy files
       command: "cp {{ item.path }} /opt"
       with_items: "{{ file.files }}"
+```
 
+Consider using insert before parameter to add line in the beginning of the file.
 
-Consider using insertbefore parameter to add line in the beginning of the file.
-
-
+```
 ---
 - name: Add block to index.html
   hosts: web1
@@ -411,10 +435,11 @@ Consider using insertbefore parameter to add line in the beginning of the file
       block: |
        Welcome to KodeKloud!
        This is Ansible Lab.
+```
 
+### Create httpd.yml playbook and add below given code
 
-Create httpd.yml playbook and add below given code
-
+```
 ---
 - name: replace port 80 to 8080
   hosts: web1
@@ -426,8 +451,8 @@ Create httpd.yml playbook and add below given code
   - service: name=httpd state=restarted
 
 
-Use format zip
-
+### Use format zip
+```
 ---
 - name: Zip archive opt.zip
   hosts: web1
@@ -436,13 +461,13 @@ Use format zip
        path: /opt
        dest: /root/opt.zip
        format: zip
-
+```
 Use src: local.zip
 
 Use unarchive and file modules to complete the task.
 
 On web1 node we have an archive data.tar.gz under /root directory, extract it under /srv directory by developing a playbook ~/playbooks/data.yml and make sure data.tar.gz archive is removed after that.
-
+```
 ---
 - name: Download and extract from URL
   hosts: web1
@@ -451,9 +476,9 @@ On web1 node we have an archive data.tar.gz under /root directory, extract
        src: https://github.com/kodekloudhub/Hello-World/archive/master.zip
        dest: /root
        remote_src: yes
-
-Create files.yml playbook and add below given code
-
+```
+### Create files.yml playbook and add below given code
+```
 - name: Compress multiple files
   hosts: web1
   tasks:
@@ -464,9 +489,9 @@ Create files.yml playbook and add below given code
       - /var/log/lastlog
      dest: /root/files.tar.bz2
      format: bz2
-
-Some of the useful modules are yum, service, unarchive and replace.
-
+```
+### Some of the useful modules are yum, service, unarchive and replace.
+```
 - name: Install and configure nginx on web1
   hosts: web1
   tasks:
@@ -483,13 +508,13 @@ Some of the useful modules are yum, service, unarchive and replace.
      path: /usr/share/nginx/html/index.html
      regexp: This is sample html code
      replace: This is KodeKloud Ansible lab
+```
 
-
-Create a playbook ~/playbooks/lastlog.yml to add a cron job Clear Lastlog on node00 to empty the /var/log/lastlog logs file. The job must run at 12am everyday.
+### Create a playbook ~/playbooks/lastlog.yml to add a cron job Clear Lastlog on node00 to empty the /var/log/lastlog logs file. The job must run at 12am everyday.
 
 You can use the command echo “” > /var/log/lastlog to empty the lastlog file and schedule should be 0 0 * * *.
 
-
+```
 ---
 - name: Create a cron job to clear last log
   hosts: node00
@@ -500,8 +525,8 @@ You can use the command echo “” > /var/log/lastlog to empty the lastlog fi
        minute: "0"
        hour: "0"
        job: echo "" > /var/log/lastlog
-
-
+```
+```
 ---
 - name: Create a cron job to run free.sh script
   hosts: node00
@@ -512,11 +537,10 @@ You can use the command echo “” > /var/log/lastlog to empty the lastlog fi
        minute: "0"
        hour: "*/2"
        job: "sh /root/free.sh"
+```
 
-
-Take care about exact name of the cron Check Memory.
-
-
+#### Take care about exact name of the cron Check Memory.
+```
 ---
 - name: remove cron job from node00
   hosts: node00
@@ -525,14 +549,14 @@ Take care about exact name of the cron Check Memory.
     cron:
       name: "Check Memory"
       state: absent
-
+```
 
 Due to some disk space limitations, we want to cleanup the /tmp location on node00 host after every reboot. Create a playbook ~/playbooks/reboot.yml to add a cron named cleanup on node00 that will execute after every reboot and will clean /tmp location.
 
 The command should be rm -rf /tmp/*.
 
-Create reboot.yml playbook and it should look like as below.
-
+### Create reboot.yml playbook and it should look like as below.
+```
 ---
 - name: Cleanup /tmp after every reboot
   hosts: node00
@@ -541,7 +565,7 @@ Create reboot.yml playbook and it should look like as below.
       name: cleanup
       job: rm -rf /tmp/*
       special_time: reboot
-
+```
 
 Generated cron expression should be 5 8 * * 0
 
@@ -556,8 +580,8 @@ Use command yum -y update
 
 Create user and admin
 
+```
 ---
-
 - hosts: all
   gather_facts: no
   tasks:
@@ -568,10 +592,9 @@ Create user and admin
         name: 'admin'
         uid: 2048
         group: 'admin'
-
-Create add_user.yml playbook and add below given code
-
-
+```
+### Create add_user.yml playbook and add below given code
+```
 ---
 - hosts: all
   gather_facts: no
@@ -579,10 +602,10 @@ Create add_user.yml playbook and add below given code
     - user:
         name: 'neymarsabin'
         expires: 1704067199
+```
+### Create remove_user.yml playbook and add below given code
 
-Create remove_user.yml playbook and add below given code
-
-
+```
 ---
 - hosts: all
   gather_facts: no
@@ -593,5 +616,4 @@ Create remove_user.yml playbook and add below given code
     - group:
         name: 'admin'
         state: absent
-
-
+```
