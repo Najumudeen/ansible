@@ -298,36 +298,37 @@ ansible-playbook -i inventory playbook.yml -vv
 ```
 
 ### Privilege Escalation
-
+```
 Users
-
 Root => super user
-
-Admin => 
-
+Admin
 Developer
-
+```
+```
 admin ssh -I id_ras admin@server1
-
 sudo yum install nginx 
+```
 
 Become Super user (sudo)
-
 Become Method - sudo (pfexec, does, ksu, runas)
-
 Becoming another user => su nginx
 
-Inventory
+##### Inventory file add the following line
 
+```
 lamp-dev1 ansible_host=172.20.1.100 ansible_user=admin
+```
 
+```
 Become:yes
 become_user: nginx
-
+```
 
 ##### FAQ
 
-`---` it indicate the beginning go the yaml file
+> [!TIP]
+> `---` 3 dashes indicate the beginning go the yaml file
+
 ```
 msg: “{{ required }}”              // use double curly bases , variable define inside
 var : dns_server_ip                // not use double curly bases with var used
@@ -337,7 +338,7 @@ with_items: {{ required  }}        // Use curly braces with_items used
 
 ansible_ssh_pass and ansible_password used both
 
-##### Ansible Modules
+### Ansible Modules
 
 ##### Packages
 
