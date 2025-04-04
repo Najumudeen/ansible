@@ -622,3 +622,105 @@ Use command yum -y update
         name: 'admin'
         state: absent
 ```
+
+### Variable Precedence
+
+Host variable take precedence over group variables.
+
+```
+Group Vars  |
+Host Vars   |
+Play Vars   |
+Extra Vars  |
+            \/
+
+```
+
+--extra-vars "dns_server=10.5.5.6"  # highest precedence
+
+command lines variable override all the precedence
+
+#### Variable Scope
+
+Scope means accessability or visibility of a variable.
+
+```
+1. Variable Scopes - Host 
+2. Variable Scopes - Play
+3. Variable Scopes - Global   --extra-vars commandline
+
+```
+
+### Register Variables
+
+Store the output of one task and use it later.
+
+`register : result`
+
+#### To Print the Variable
+```
+debug:
+   var: result
+```
+
+The registered variable is stored in memory.
+
+```
+- hosts: all
+  tasks:
+     - shell: uptime
+       register: uptime_result
+
+     - debug: var=uptime_result.stdout
+```
+
+```
+---
+- hosts: all
+  gather_facts: no  
+  tasks:    
+    - name: stat module help to find the file info
+      stat:
+        path: /var/run
+      register: your_variable
+
+    # for your reference, check the outputs of these
+    - debug:
+       var=your_variable.stat
+
+    # your code goes here...
+    - shell: echo "{{your_variable.stat}}" > /tmp/by_ansible
+```
+
+```
+tasks:
+    - name: alternative way to gather facts about remote host
+      setup: filter='ansible_dist*'
+      register: facts
+    - debug: var=facts.ansible_facts.ansible_distribution
+    - shell: echo "{{facts.ansible_facts.ansible_distribution}}" > /tmp/output.txt
+```
+
+### Magic Variabels
+
+When Ansible playbooks starts, it first creates three sub processes for each host.<br/>
+Before the tasks are run on each host, Ansible goes through a variable interpolation stage,<br/>
+where it picks up variables from different sources and associates them to the respective hosts.<br/>
+Each variable is only associated to the host on which it was defined. so it is unavilable on the others<br/>
+
+```
+hostvars['hostname'].dns_server  .dns server is variable name
+hostvars['hostname'].ansible_host
+hostvars['hostname'].ansible_facts.architecture
+groups
+group_names
+inventory_hostname
+```
+
+```
+---
+- name: print_dns server
+  hosts: all
+  tasks:
+    - shell: "echo {{hostvars['node01.host'].dns_server}} >> /tmp/variable.txt"
+```
