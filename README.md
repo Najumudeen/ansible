@@ -325,7 +325,7 @@ Become:yes
 become_user: nginx
 
 
-### FAQ
+##### FAQ
 
 `---` it indicate the beginning go the yaml file
 ```
@@ -337,9 +337,9 @@ with_items: {{ required  }}        // Use curly braces with_items used
 
 ansible_ssh_pass and ansible_password used both
 
-### Ansible Modules
+##### Ansible Modules
 
-### Packages
+##### Packages
 
 1. `yum`
 2. `apt`
@@ -349,7 +349,7 @@ ansible_ssh_pass and ansible_password used both
 4. `service
      name: httpd`
 
-### Firewall Rules
+##### Firewall Rules
 
 5. Firewalld
      Permanent: yes
@@ -383,7 +383,6 @@ remote_src: yes`
 12. `Users and groups`
 
 ```
----
 - hosts: all
   gather_facts: no
   tasks:
@@ -401,10 +400,10 @@ remote_src: yes`
 
 Update `find.yml` playbook as per below given code
 
-We have a playbook ~/playbooks/find.yml that recursively finds files in /opt/data directory older than 2 minutes and equal or greater than 1 megabyte in size. It also copies those files under /opt directory. However it has some missing parameters so its not working as expected, take a look into it and make appropriate changes.
+We have a playbook ~/playbooks/find.yml that recursively finds files in /opt/data directory older than 2 minutes and equal or greater than 1 megabyte in size.<br/>
+It also copies those files under /opt directory. However it has some missing parameters so its not working as expected, take a look into it and make appropriate changes.<br/>
 
 ```
----
 - hosts: web1
   tasks:
     - name: Find files
@@ -423,7 +422,6 @@ We have a playbook ~/playbooks/find.yml that recursively finds files in /opt/
 Consider using insert before parameter to add line in the beginning of the file.
 
 ```
----
 - name: Add block to index.html
   hosts: web1
   tasks:
@@ -437,10 +435,9 @@ Consider using insert before parameter to add line in the beginning of the fil
        This is Ansible Lab.
 ```
 
-### Create httpd.yml playbook and add below given code
+##### Create httpd.yml playbook and add below given code
 
 ```
----
 - name: replace port 80 to 8080
   hosts: web1
   tasks:
@@ -449,11 +446,11 @@ Consider using insert before parameter to add line in the beginning of the fil
       regexp: '^(Listen)\s+80\s*$'
       replace: 'Listen 8080'
   - service: name=httpd state=restarted
-
-
-### Use format zip
 ```
----
+
+##### Use format zip
+
+```
 - name: Zip archive opt.zip
   hosts: web1
   tasks:
@@ -462,13 +459,14 @@ Consider using insert before parameter to add line in the beginning of the fil
        dest: /root/opt.zip
        format: zip
 ```
+
 Use src: local.zip
 
 Use unarchive and file modules to complete the task.
 
 On web1 node we have an archive data.tar.gz under /root directory, extract it under /srv directory by developing a playbook ~/playbooks/data.yml and make sure data.tar.gz archive is removed after that.
+
 ```
----
 - name: Download and extract from URL
   hosts: web1
   tasks:
@@ -477,7 +475,9 @@ On web1 node we have an archive data.tar.gz under /root directory, extract
        dest: /root
        remote_src: yes
 ```
-### Create files.yml playbook and add below given code
+
+##### Create files.yml playbook and add below given code
+
 ```
 - name: Compress multiple files
   hosts: web1
@@ -490,7 +490,8 @@ On web1 node we have an archive data.tar.gz under /root directory, extract
      dest: /root/files.tar.bz2
      format: bz2
 ```
-### Some of the useful modules are yum, service, unarchive and replace.
+##### Some of the useful modules are yum, service, unarchive and replace.
+
 ```
 - name: Install and configure nginx on web1
   hosts: web1
@@ -510,12 +511,11 @@ On web1 node we have an archive data.tar.gz under /root directory, extract
      replace: This is KodeKloud Ansible lab
 ```
 
-### Create a playbook ~/playbooks/lastlog.yml to add a cron job Clear Lastlog on node00 to empty the /var/log/lastlog logs file. The job must run at 12am everyday.
+##### Create a playbook ~/playbooks/lastlog.yml to add a cron job Clear Lastlog on node00 to empty the /var/log/lastlog logs file. The job must run at 12am everyday.
 
 You can use the command echo “” > /var/log/lastlog to empty the lastlog file and schedule should be 0 0 * * *.
 
 ```
----
 - name: Create a cron job to clear last log
   hosts: node00
   tasks:
@@ -526,8 +526,8 @@ You can use the command echo “” > /var/log/lastlog to empty the lastlog fi
        hour: "0"
        job: echo "" > /var/log/lastlog
 ```
+
 ```
----
 - name: Create a cron job to run free.sh script
   hosts: node00
   tasks:
@@ -539,9 +539,9 @@ You can use the command echo “” > /var/log/lastlog to empty the lastlog fi
        job: "sh /root/free.sh"
 ```
 
-#### Take care about exact name of the cron Check Memory.
+##### Take care about exact name of the cron Check Memory.
+
 ```
----
 - name: remove cron job from node00
   hosts: node00
   tasks:
@@ -551,13 +551,14 @@ You can use the command echo “” > /var/log/lastlog to empty the lastlog fi
       state: absent
 ```
 
-Due to some disk space limitations, we want to cleanup the /tmp location on node00 host after every reboot. Create a playbook ~/playbooks/reboot.yml to add a cron named cleanup on node00 that will execute after every reboot and will clean /tmp location.
+Due to some disk space limitations, we want to cleanup the /tmp location on node00 host after every reboot.<br/>
+Create a playbook ~/playbooks/reboot.yml to add a cron named cleanup on node00 that will execute after every reboot and will clean /tmp location.<br/>
 
 The command should be rm -rf /tmp/*.
 
-### Create reboot.yml playbook and it should look like as below.
+##### Create reboot.yml playbook and it should look like as below.
+
 ```
----
 - name: Cleanup /tmp after every reboot
   hosts: node00
   tasks:
@@ -569,19 +570,21 @@ The command should be rm -rf /tmp/*.
 
 Generated cron expression should be 5 8 * * 0
 
+On node00 we want to keep the installed packages up to date, so we would like to run yum updates regularly.<br/>
+Create a playbook ~/playbooks/yum_update.yml and create a cron job as described below:
 
-On node00 we want to keep the installed packages up to date, so we would like to run yum updates regularly. Create a playbook ~/playbooks/yum_update.yml and create a cron job as described below:
+```
 a. Do not add cron directly using crontab instead create a cron file /etc/cron.d/ansible_yum.
 b. The cron must run on every Sunday at 8:05 am.
 c. The name of the cron must be yum update.
 d. Cron should be added for user root
+```
 
 Use command yum -y update
 
-Create user and admin
+##### Create user and admin
 
 ```
----
 - hosts: all
   gather_facts: no
   tasks:
@@ -593,9 +596,10 @@ Create user and admin
         uid: 2048
         group: 'admin'
 ```
-### Create add_user.yml playbook and add below given code
+
+##### Create add_user.yml playbook and add below given code
+
 ```
----
 - hosts: all
   gather_facts: no
   tasks:
@@ -603,10 +607,10 @@ Create user and admin
         name: 'neymarsabin'
         expires: 1704067199
 ```
-### Create remove_user.yml playbook and add below given code
+
+##### Create remove_user.yml playbook and add below given code
 
 ```
----
 - hosts: all
   gather_facts: no
   tasks:
