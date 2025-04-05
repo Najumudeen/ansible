@@ -724,3 +724,236 @@ inventory_hostname
   tasks:
     - shell: "echo {{hostvars['node01.host'].dns_server}} >> /tmp/variable.txt"
 ```
+
+#### Copy tempate to different location
+```
+---
+- hosts: node00.host
+  gather_facts: false
+  tasks:
+    - name : hostinfo
+      template:
+        src: hostinfo.j2
+        dest: /root/hostinfo
+ ```
+
+ ### Jinja2 in Ansible
+
+ ### Built in Filters in Jinja2
+
+ ```
+ abs()
+ attr()
+ batch()
+ join()
+ lenght()
+ replace()
+ select()
+ sort()
+ tojson()
+ trim()
+ wordcount()
+ ```
+Converting YAML to json
+Working with file names and directory paths in linux and windows
+Passwords and regular expression.
+
+### Filters - file
+
+{{ '/etc/hosts' | basename }}                     => hosts
+{{ c:\windows\hosts" | win_basename }}            => hosta
+{{ c:\windows\hosts" | win_splitdrive }}          => ["c:", "\windows\hosts"]
+{{ c:\windows\hosts" | win_splitdrive | first }}  => "c:"
+
+##### How jinj2 works in Playbook
+
+Here we have a simple inventory file with a few variables
+
+Before executing the playbook ansible runs the Playbook through the Jinj2
+templating engine, providing the set of variables it gathered through inventory parameters.
+The Jinja2 templating engine spits out a new version of the Playbook with all the variable in place.
+which is then used for the actual execution.
+
+Jinja2 Documentation click [here](https://jinja.palletsprojects.com/en/2.10.x/templates/#builtin-filters)
+
+Ansible Documentation click [here](https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_filters.html)
+
+
+{
+  "names": [
+    "Alpha",
+    "Beta",
+    "Charlie",
+    "Delta",
+    "Echo"
+  ]
+}
+
+{% for name in names %}
+{{ name }}
+{% endfor %}
+
+output:
+Alpha
+Beta
+Charlie
+Delta
+Echo
+
+
+{
+  "name_servers": [
+    "10.1.1.5",
+    "10.1.1.6",
+    "10.1.1.8",
+    "10.8.8.1",
+    "8.8.8.8"
+  ]
+}
+
+{% for name_server in name_servers -%}
+nameserver {{ name_server }}
+{% endfor %}
+
+Output
+nameserver 10.1.1.5
+nameserver 10.1.1.6
+nameserver 10.1.1.8
+nameserver 10.8.8.1
+nameserver 8.8.8.8
+
+{
+  "hosts": [
+    {
+      "name": "web1",
+      "ip_address": "192.168.5.4"
+    },
+    {
+      "name": "web2",
+      "ip_address": "192.168.5.5"
+    },
+    {
+      "name": "web3",
+      "ip_address": "192.168.5.8"
+    },
+    {
+      "name": "db1",
+      "ip_address": "192.168.5.9"
+    }
+  ]
+}
+
+{% for host in hosts -%}
+{{ host.name }} {{ host.ip_address }}
+{% endfor %}
+
+output
+web1 192.168.5.4
+web2 192.168.5.5
+web3 192.168.5.8
+db1 192.168.5.9
+
+##### hostname contains web. Use Jina2 Blocks
+
+{
+  "hosts": [
+    {
+      "name": "web1",
+      "ip_address": "192.168.5.4"
+    },
+    {
+      "name": "web2",
+      "ip_address": "192.168.5.5"
+    },
+    {
+      "name": "web3",
+      "ip_address": "192.168.5.8"
+    },
+    {
+      "name": "db1",
+      "ip_address": "192.168.5.9"
+    }
+  ]
+}
+
+{% for host in hosts -%}
+  {% if "web" in host.name -%}
+{{ host.name }} {{ host.ip_address -}}
+  {% endif %}
+{% endfor %}
+
+Output:
+
+web1 192.168.5.4
+web2 192.168.5.5
+web3 192.168.5.8
+
+## Ansible Templates
+
+playbook.yml
+
+---
+ hosts: web_servers
+ tasks:
+   - name: Copy index.html to remote servers
+     copy:
+       src: index.html
+       dest: /var/www/nginx-default/index.html
+
+index.html
+
+<!DOCTYPE html>
+<html>
+<body>
+This is a web server
+</body>
+</html>
+
+index.html.j2 - template 
+
+file extension is used .j2
+
+<!DOCTYPE html>
+<html>
+<body>
+This is {{ name }} server
+</body>
+</html>
+
+---
+ hosts: web_servers
+ tasks:
+   - name: Copy index.html to remote servers
+     template:
+       src: index.html.j2
+       dest: /var/www/nginx-default/index.html
+
+index.html.j2 - template 
+
+file extension is used .j2
+
+<!DOCTYPE html>
+<html>
+<body>
+This is {{ inventory_hostname }} server
+</body>
+</html>
+
+When the playbook is run ansible first takes the Jinja2 template then does variable interpolation,
+converts the template file into files to be copied into each server and copies them to the target servers.
+
+When the playbook is run Ansible creates three `separate subprocesses` for each host. Each process create
+it's own set of parameters for each host by performing it's own `variable interpolation`. it then proceeds to `gathering facts`
+from the host, so each subprocess now has a lot more information about the host. Then the process starts executing playbooks
+Each subproces `execute the playbook` targeting the respetive host. Each subprocess executes the template task for the respetive host
+by taking the index.html.j2 file and performing variable interpolation on it by replacing the variables with theri values.
+thus generating an index.html file from it. The template module then `copies over the files to the target hosts`. The index.html file
+was just a simple example.
+
+> [!TIP]
+> You can use Jinja2 filters within this. Example: port {{ redis_port  | default('6379') }} if it is not sepcified explicitly.
+
+
+
+
+
